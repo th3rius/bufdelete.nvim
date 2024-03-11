@@ -137,23 +137,20 @@ local function buf_kill(target_buffers, switchable_buffers, force, wipeout)
 
     -- Close all target buffers one by one.
     for bufnr, _ in pairs(buf_is_deleted) do
-        -- Check if buffer is still valid and loaded as it may be deleted due to options like bufhidden=wipe.
-        if api.nvim_buf_is_loaded(bufnr) then
-            -- Only use force if buffer is modified, is a terminal or if `force` is true.
-            local use_force = force or bo[bufnr].modified or bo[bufnr].buftype == 'terminal'
+        -- Only use force if buffer is modified, is a terminal or if `force` is true.
+        local use_force = force or bo[bufnr].modified or bo[bufnr].buftype == 'terminal'
 
-            -- Trigger BDeletePre autocommand.
-            api.nvim_exec_autocmds('User', { pattern = 'BDeletePre ' .. tostring(bufnr) })
+        -- Trigger BDeletePre autocommand.
+        api.nvim_exec_autocmds('User', { pattern = 'BDeletePre ' .. tostring(bufnr) })
 
-            if wipeout then
-                cmd.bwipeout({ count = bufnr, bang = use_force })
-            else
-                cmd.bdelete({ count = bufnr, bang = use_force })
-            end
-
-            -- Trigger BDeletePost autocommand.
-            api.nvim_exec_autocmds('User', { pattern = 'BDeletePost ' .. tostring(bufnr) })
+        if wipeout then
+            cmd.bwipeout({ count = bufnr, bang = use_force })
+        else
+            cmd.bdelete({ count = bufnr, bang = use_force })
         end
+
+        -- Trigger BDeletePost autocommand.
+        api.nvim_exec_autocmds('User', { pattern = 'BDeletePost ' .. tostring(bufnr) })
     end
 end
 
